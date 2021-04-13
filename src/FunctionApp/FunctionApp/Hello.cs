@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FunctionApp.DataAccess.Containers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Net;
 using System.Threading.Tasks;
+using FunctionApp.DataAccess.Models;
 
 namespace FunctionApp {
     public class Hello {
@@ -16,7 +18,7 @@ namespace FunctionApp {
         public Hello(IItemContainer container) => _container = container;
 
 
-        [FunctionName("Create")]
+        [FunctionName(nameof(Create))]
         [OpenApiOperation(operationId: "Create", tags: new[] { "name" })]
         [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
@@ -28,16 +30,13 @@ namespace FunctionApp {
             return new OkObjectResult("item.Id");
         }
 
-        [FunctionName("Hello")]
+        [FunctionName(nameof(Run))]
         [OpenApiOperation(operationId: "Run", tags: new[] { "name" })]
-        [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
+        [OpenApiSecurity("function_key", SecuritySchemeType.OpenIdConnect, Name = "code", In = OpenApiSecurityLocationType.Query)]
         [OpenApiParameter(name: "name", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **Name** parameter")]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(IEnumerable<Item>), Description = "The OK response")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
-            ILogger log) {
-            return new OkObjectResult(await _container.GetAsync());
-        }
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "items/{id?}")] HttpRequest req, ILogger log, string id) => new OkObjectResult(await _container.GetAsync(id));
     }
 }
 
