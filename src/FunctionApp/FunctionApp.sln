@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionApp", "FunctionApp\FunctionApp.csproj", "{58E22A29-ADD7-4B2A-8E3D-C042868DD9A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionApp", "FunctionApp\FunctionApp.csproj", "{58E22A29-ADD7-4B2A-8E3D-C042868DD9A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionApp.DataAccess", "FunctionApp.DataAccess\FunctionApp.DataAccess.csproj", "{5C12F619-5FE9-4007-B5A4-0F7C3CABC217}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionApp.DataAccess.Abstractions", "FunctionApp.DataAccess.Abstractions\FunctionApp.DataAccess.Abstractions.csproj", "{D4E7A1C5-1F23-4354-B077-55C2ADAFA18C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{58E22A29-ADD7-4B2A-8E3D-C042868DD9A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58E22A29-ADD7-4B2A-8E3D-C042868DD9A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58E22A29-ADD7-4B2A-8E3D-C042868DD9A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C12F619-5FE9-4007-B5A4-0F7C3CABC217}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C12F619-5FE9-4007-B5A4-0F7C3CABC217}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C12F619-5FE9-4007-B5A4-0F7C3CABC217}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C12F619-5FE9-4007-B5A4-0F7C3CABC217}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4E7A1C5-1F23-4354-B077-55C2ADAFA18C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4E7A1C5-1F23-4354-B077-55C2ADAFA18C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4E7A1C5-1F23-4354-B077-55C2ADAFA18C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4E7A1C5-1F23-4354-B077-55C2ADAFA18C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,22 +1,16 @@
 ﻿using FunctionApp;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Fluent;
+using FunctionApp.DataAccess;
+using FunctionApp.DataAccess.Abstractions;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace FunctionApp {
     public class Startup : FunctionsStartup {
         public override void Configure(IFunctionsHostBuilder builder) {
-            builder.Services.AddSingleton(service => {
-                var client = new CosmosClientBuilder("https://cosmos-aka-data.documents.azure.com:443/",
-                    "HwAbioeggYX1KSXad4zaFW2RPX7BnRAMzpoaHrNu8PD0Vtmldbh0ku7WNusMLOAbdqXADuzQJYw1we8SL11TWA==");
-                return client
-                    .WithSerializerOptions(new CosmosSerializationOptions {
-                        PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
-                    })
-                    .Build();
-            });
+            var settings = new ConnectionSettings();
+            builder.GetContext().Configuration.GetSection("Cosmos").Bind(settings);
+            builder.Services.AddCosmos(settings);
         }
     }
 }

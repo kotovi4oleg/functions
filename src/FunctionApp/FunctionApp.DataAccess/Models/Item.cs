@@ -1,4 +1,4 @@
-﻿namespace FunctionApp.Models {
+﻿namespace FunctionApp.DataAccess.Models {
     public class Item {
         public string Id { get; set; }
         public string Name { get; set; }
