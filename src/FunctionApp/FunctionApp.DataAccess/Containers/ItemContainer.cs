@@ -1,6 +1,7 @@
 ﻿using FunctionApp.DataAccess.Connections;
 using FunctionApp.DataAccess.Models;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
@@ -13,21 +14,33 @@ namespace FunctionApp.DataAccess.Containers {
         public async Task<IEnumerable<Item>> GetAsync(string id = null) {
             var connection = await _factory.GetAsync();
             var container = await connection.OpenAsync("Items");
-            var iterator = container.GetItemQueryIterator<Item>(Query(id));
             var collection = new List<Item>();
-            while (iterator.HasMoreResults)
-                collection.AddRange(await iterator.ReadNextAsync());
-
+            using var iterator = Query(container, id);
+            while (iterator.HasMoreResults) {
+                var next = await iterator.ReadNextAsync();
+                collection.AddRange(next);
+            }
+            
             return collection;
         }
 
-        private static QueryDefinition Query(string id) {
+        private static FeedIterator<Item> Query(Container container, string id) {
             var builder = new StringBuilder("SELECT * FROM c");
 
-            if (string.IsNullOrEmpty(id))
-                return new QueryDefinition(builder.Append(" ORDER BY c._ts DESC").ToString());
+            return string.IsNullOrEmpty(id)
+                ? container.GetItemQueryIterator<Item>(new QueryDefinition(builder.Append(" ORDER BY c._ts DESC").ToString()))
+                : container.GetItemQueryIterator<Item>(new QueryDefinition(builder.Append(" WHERE c.id = @id").ToString()).WithParameter("@id", id), requestOptions:new QueryRequestOptions {
+                    PartitionKey = new PartitionKey(id)
+                });
+        }
 
-            return new QueryDefinition(builder.Append(" WHERE c.id = @id").ToString()).WithParameter("@id", id);
+        public async Task<int> GetCountAsync() {
+            var connection = await _factory.GetAsync();
+            var container = await connection.OpenAsync("Items");
+            using var iterator = container.GetItemQueryIterator<int>(new QueryDefinition("SELECT VALUE COUNT(1) FROM c"), requestOptions:new QueryRequestOptions {
+                MaxItemCount = 1
+            });
+            return (await iterator.ReadNextAsync()).Resource.Single();
         }
     }
 }

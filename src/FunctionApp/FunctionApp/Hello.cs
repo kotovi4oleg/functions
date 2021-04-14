@@ -6,7 +6,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Net;
 using System.Threading.Tasks;
@@ -17,26 +16,22 @@ namespace FunctionApp {
         private readonly IItemContainer _container;
         public Hello(IItemContainer container) => _container = container;
 
-
-        [FunctionName(nameof(Create))]
-        [OpenApiOperation(operationId: "Create", tags: new[] { "name" })]
-        [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
-        public IActionResult Create(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
-            ILogger log) {
-
-
-            return new OkObjectResult("item.Id");
-        }
-
         [FunctionName(nameof(Run))]
         [OpenApiOperation(operationId: "Run", tags: new[] { "name" })]
         [OpenApiSecurity("function_key", SecuritySchemeType.OpenIdConnect, Name = "code", In = OpenApiSecurityLocationType.Query)]
         [OpenApiParameter(name: "name", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **Name** parameter")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(IEnumerable<Item>), Description = "The OK response")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "items/{id?}")] HttpRequest req, ILogger log, string id) => new OkObjectResult(await _container.GetAsync(id));
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "items/{id?}")]
+            HttpRequest request, string id) {
+            var items = _container.GetAsync(id);
+            var counts = _container.GetCountAsync();
+            await Task.WhenAll(items, counts);
+            return new OkObjectResult(new {
+                count = await counts,
+                items = await items
+            });
+        }
     }
 }
 
