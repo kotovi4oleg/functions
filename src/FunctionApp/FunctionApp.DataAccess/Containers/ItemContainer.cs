@@ -1,10 +1,10 @@
 ﻿using FunctionApp.DataAccess.Connections;
 using FunctionApp.DataAccess.Models;
+using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
 
 namespace FunctionApp.DataAccess.Containers {
     internal sealed class ItemContainer : IItemContainer {
@@ -20,7 +20,7 @@ namespace FunctionApp.DataAccess.Containers {
                 var next = await iterator.ReadNextAsync();
                 collection.AddRange(next);
             }
-            
+
             return collection;
         }
 
@@ -29,7 +29,7 @@ namespace FunctionApp.DataAccess.Containers {
 
             return string.IsNullOrEmpty(id)
                 ? container.GetItemQueryIterator<Item>(new QueryDefinition(builder.Append(" ORDER BY c._ts DESC").ToString()))
-                : container.GetItemQueryIterator<Item>(new QueryDefinition(builder.Append(" WHERE c.id = @id").ToString()).WithParameter("@id", id), requestOptions:new QueryRequestOptions {
+                : container.GetItemQueryIterator<Item>(new QueryDefinition(builder.Append(" WHERE c.id = @id").ToString()).WithParameter("@id", id), requestOptions: new QueryRequestOptions {
                     PartitionKey = new PartitionKey(id)
                 });
         }
@@ -37,7 +37,7 @@ namespace FunctionApp.DataAccess.Containers {
         public async Task<int> GetCountAsync() {
             var connection = await _factory.GetAsync();
             var container = await connection.OpenAsync("Items");
-            using var iterator = container.GetItemQueryIterator<int>(new QueryDefinition("SELECT VALUE COUNT(1) FROM c"), requestOptions:new QueryRequestOptions {
+            using var iterator = container.GetItemQueryIterator<int>(new QueryDefinition("SELECT VALUE COUNT(1) FROM c"), requestOptions: new QueryRequestOptions {
                 MaxItemCount = 1
             });
             return (await iterator.ReadNextAsync()).Resource.Single();
