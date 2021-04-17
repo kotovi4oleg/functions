@@ -29,7 +29,7 @@ namespace FunctionApp {
             return new OkObjectResult(await _queries.QueryAsync(new ItemPageQuery(id)));
         }
 
-        [FunctionName(nameof(Run))]
+        [FunctionName(nameof(Secret))]
         [OpenApiOperation(operationId: "Secret", tags: new[] { "name" })]
         [OpenApiSecurity("function_key", SecuritySchemeType.OpenIdConnect, Name = "code", In = OpenApiSecurityLocationType.Query)]
         [OpenApiParameter(name: "name", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **Name** parameter")]
