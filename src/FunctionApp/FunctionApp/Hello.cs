@@ -12,6 +12,8 @@ using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 
 namespace FunctionApp {
     public class Hello {
@@ -34,11 +36,11 @@ namespace FunctionApp {
         [OpenApiSecurity("function_key", SecuritySchemeType.OpenIdConnect, Name = "code", In = OpenApiSecurityLocationType.Query)]
         [OpenApiParameter(name: "name", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **Name** parameter")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(IEnumerable<Item>), Description = "The OK response")]
-        public IActionResult Secret(
+        public async Task<IActionResult> Secret(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "secrets")]
             HttpRequest request) {
-
-            return new OkObjectResult(Environment.GetEnvironmentVariables());
+            var client = new SecretClient(new Uri(Environment.GetEnvironmentVariable("KEY_VAULT") ?? string.Empty), new DefaultAzureCredential());
+            return new OkObjectResult(await client.GetSecretAsync("Cosmos-PrimaryKey"));
         }
     }
 }
