@@ -1,3 +1,4 @@
+using System;
 using FunctionApp.Bussines.Queries;
 using FunctionApp.Bussines.Services;
 using FunctionApp.DataAccess.Models;
@@ -26,6 +27,18 @@ namespace FunctionApp {
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "items/{id?}")]
             HttpRequest request, string id) {
             return new OkObjectResult(await _queries.QueryAsync(new ItemPageQuery(id)));
+        }
+
+        [FunctionName(nameof(Run))]
+        [OpenApiOperation(operationId: "Secret", tags: new[] { "name" })]
+        [OpenApiSecurity("function_key", SecuritySchemeType.OpenIdConnect, Name = "code", In = OpenApiSecurityLocationType.Query)]
+        [OpenApiParameter(name: "name", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **Name** parameter")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(IEnumerable<Item>), Description = "The OK response")]
+        public IActionResult Secret(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "secrets")]
+            HttpRequest request) {
+
+            return new OkObjectResult(Environment.GetEnvironmentVariables());
         }
     }
 }
