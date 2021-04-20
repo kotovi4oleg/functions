@@ -14,6 +14,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using Microsoft.Extensions.Logging;
 
 namespace FunctionApp {
     public class Hello {
@@ -27,7 +28,9 @@ namespace FunctionApp {
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(IEnumerable<Item>), Description = "The OK response")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "items/{id?}")]
-            HttpRequest request, string id) {
+            HttpRequest request, ILogger logger, string id) {
+            logger.LogDebug("Cosmos DB");
+            logger.LogDebug($"Run processing {id}");
             return new OkObjectResult(await _queries.QueryAsync(new ItemPageQuery(id)));
         }
 
